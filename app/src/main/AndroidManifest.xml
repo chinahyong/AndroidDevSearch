@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="and.elvis.androiddevsearch">
+
+    <application
+        android:name=".chapter2.App"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity
+            android:name=".chapter1.MainActivity"
+            android:configChanges="orientation|screenSize">
+
+            <!-- 隐式调用activity需要匹配intent-filter中的action(多个匹配一个)、 -->
+            <!-- category(全部匹配或不添加匹配会默认匹配default)、data。 -->
+            <!-- 多个intent-filter匹配其中一个itnent-filter就可以 -->
+            <!-- <intent-filter> -->
+            <!-- <action android:name="android.intent.action.MAIN" /> -->
+
+
+            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+            <!-- </intent-filter> -->
+        </activity>
+        <activity
+            android:name=".chapter1.SecondAcitivty"
+            android:launchMode="singleTask"
+            android:taskAffinity="and.elvis.tast1" />
+        <activity
+            android:name=".chapter1.ThirdActivity"
+            android:launchMode="singleTask"
+            android:taskAffinity="and.elvis.tast1" />
+        <activity
+            android:name=".chapter2.MainActivity"
+            android:configChanges="orientation|screenSize">
+
+            <!-- 隐式调用activity需要匹配intent-filter中的action(多个匹配一个)、 -->
+            <!-- category(全部匹配或不添加匹配会默认匹配default)、data。 -->
+            <!-- 多个intent-filter匹配其中一个itnent-filter就可以 -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".chapter2.SecondAcitivty"
+            android:process=":remote" />
+        <activity
+            android:name=".chapter2.ThirdActivity"
+            android:process="and.elvis.androiddevsearch.chapter2.remote" />
+
+        <service
+            android:name=".BookManagerService"
+            android:process=":remote" />
+
+        <activity android:name=".BookManagerActivity"></activity>
+    </application>
+
+</manifest>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="and.elvis.androiddevsearch.chapter1.MainActivity">
+
+    <Button
+        android:id="@+id/btn_to_second"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:onClick="toSecond"
+        android:text="toSecond" />
+
+    <EditText
+        android:id="@+id/et_save"
+        android:layout_width="120dp"
+        android:layout_height="40dp" />
+
+    <Button
+        android:id="@+id/btn_to_self"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:onClick="toSelf"
+        android:text="toSelf" />
+
+    <Button
+        android:id="@+id/btn_to_ipc"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:onClick="toIPC"
+        android:text="toIPC" />
+
+</LinearLayout>
