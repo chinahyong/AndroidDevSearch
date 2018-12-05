@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
+import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -19,8 +20,11 @@ public class BookManagerService extends Service {
     private static final String TAG = "BookManagerService";
     // CopyOnWriteArrayList:支持并发读写
     private CopyOnWriteArrayList<Book> bookList = new CopyOnWriteArrayList<>();
+    // 并发Boolean
     private AtomicBoolean mIsServiceDestoryed = new AtomicBoolean(false);
+    // 并发list
     private CopyOnWriteArrayList<IOnNewBookArrivedListener> listeners = new CopyOnWriteArrayList<>();
+    private RemoteCallbackList<IOnNewBookArrivedListener> callbackList = new RemoteCallbackList<>();
 
     private Binder mBinder = new IBookManager.Stub() {
 
@@ -36,20 +40,22 @@ public class BookManagerService extends Service {
 
         @Override
         public void registerListener(IOnNewBookArrivedListener listener) throws RemoteException {
-            if (!listeners.contains(listener)) {
-                listeners.add(listener);
-            } else {
-                Log.e(TAG, "already listener");
-            }
+//            if (!listeners.contains(listener)) {
+//                listeners.add(listener);
+//            } else {
+//                Log.e(TAG, "already listener");
+//            }
+            callbackList.register(listener);
         }
 
         @Override
         public void unregisterListener(IOnNewBookArrivedListener listener) throws RemoteException {
-            if (listeners.contains(listener)) {
-                listeners.remove(listener);
-            } else {
-                Log.e(TAG, "not found this listeners");
-            }
+//            if (listeners.contains(listener)) {
+//                listeners.remove(listener);
+//            } else {
+//                Log.e(TAG, "not found this listeners");
+//            }
+            callbackList.unregister(listener);
         }
 
     };
@@ -79,14 +85,16 @@ public class BookManagerService extends Service {
                     String bookName = "new Book" + bookId;
                     Book book = new Book(bookId, bookName);
                     bookList.add(book);
-                    for (IOnNewBookArrivedListener listener :
-                            listeners) {
+                    int N = callbackList.beginBroadcast();
+                    for (int i = 0; i < N; i++) {
+                        IOnNewBookArrivedListener listener = callbackList.getBroadcastItem(i);
                         try {
                             listener.onNewBookArrived(book);
                         } catch (RemoteException e) {
                             e.printStackTrace();
                         }
                     }
+                    callbackList.finishBroadcast();
                 }
             }
         }.start();

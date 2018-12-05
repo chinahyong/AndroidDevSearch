@@ -31,5 +31,22 @@
         android:layout_height="50dp"
         android:onClick="toIPC"
         android:text="toIPC" />
+    <Button
+        android:id="@+id/btn_to_provider"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:onClick="toProvider"
+        android:text="toProvider" />
+    <Button
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:onClick="connectServer"
+        android:text="connectServer" />
+
+    <Button
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:onClick="onAnimation"
+        android:text="animation" />
 
 </LinearLayout>

@@ -16,6 +16,7 @@ import java.util.List;
 
 public class BookManagerActivity extends AppCompatActivity {
     private static final String TAG = "BookManagerActivity";
+    private IBookManager mBookManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +31,7 @@ public class BookManagerActivity extends AppCompatActivity {
         public void onServiceConnected(ComponentName componentName, IBinder service) {
             IBookManager iBookManager = IBookManager.Stub.asInterface(service);
             try {
+                mBookManager = iBookManager;
                 iBookManager.registerListener(listener);
                 List<Book> list = iBookManager.getBookList();
                 Log.e(TAG, "list type:" + list.getClass());
@@ -49,8 +51,16 @@ public class BookManagerActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         unbindService(mConnection);
+        if (mBookManager != null && mBookManager.asBinder().isBinderAlive()) {
+            try {
+                // 此处拿到的listener多余其他另一个新对象：跨进程会创建新的对象
+                mBookManager.unregisterListener(listener);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+        super.onDestroy();
     }
 
     private Handler mHandler = new Handler() {

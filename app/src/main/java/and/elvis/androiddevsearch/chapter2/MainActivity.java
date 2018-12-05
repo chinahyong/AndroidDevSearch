@@ -1,11 +1,20 @@
 package and.elvis.androiddevsearch.chapter2;
 
+import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.net.Socket;
 
 import and.elvis.androiddevsearch.BookManagerActivity;
 import and.elvis.androiddevsearch.R;
@@ -17,6 +26,7 @@ import and.elvis.androiddevsearch.R;
  */
 public class MainActivity extends AppCompatActivity {
     public static final String TAG = "MainActivity";
+    private Socket mClientSocket;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,7 +37,62 @@ public class MainActivity extends AppCompatActivity {
             String test = savedInstanceState.getString("test");
             Log.e(TAG, "oncreate:" + test);
         }
+        Intent intent = new Intent(this, TCPServerService.class);
+        startService(intent);
         Log.e(TAG, "userId:" + (++UserManager.userId));
+    }
+
+    public void connectServer(View view) {
+        new Thread() {
+            @Override
+            public void run() {
+                while (mClientSocket == null) {
+                    try {
+                        mClientSocket = new Socket("localhost", 8788);
+                        // 向服务端写内容
+                        final PrintWriter printWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(mClientSocket.getOutputStream())), true);
+                        new Thread() {
+                            @Override
+                            public void run() {
+                                int i = 0;
+                                while (i < 10) {
+                                    try {
+                                        Thread.sleep(1000);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                    printWriter.println(i);
+                                    Log.e(TAG, "Client Send:" + i);
+                                    i++;
+                                }
+                            }
+                        }.start();
+                        // 读取服务端发送的内容
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(mClientSocket.getInputStream()));
+                        while (!MainActivity.this.isFinishing()) {
+                            if (reader.ready()) {
+                                String str = reader.readLine();
+                                if (str != null) {
+                                    Log.e(TAG, "Client Receive:" + str);
+                                }
+                            }
+                        }
+                        Log.e(TAG, "Client Quit:");
+                        printWriter.close();
+                        reader.close();
+                        mClientSocket.close();
+                    } catch (IOException e) {
+                        Log.e(TAG, "Client Receive:" + e.getMessage());
+//                        e.printStackTrace();
+                    }
+                }
+            }
+        }.start();
+    }
+
+    public void onAnimation(View view) {
+        ObjectAnimator.ofFloat(view, "translationX", 0,100).setDuration(1000).start();
+        ObjectAnimator.ofFloat(view, "translationY", 0,100).setDuration(1000).start();
     }
 
     // SingleTop:新创建Activity在栈顶存在实例，会直接打开旧的实例，并进入onNewIntent->onResume
@@ -73,6 +138,10 @@ public class MainActivity extends AppCompatActivity {
         startActivity(new Intent(this, BookManagerActivity.class));
     }
 
+    public void toProvider(View view) {
+        startActivity(new Intent(this, ProviderActivity.class));
+    }
+
     @Override
     protected void onRestart() {
         super.onRestart();
@@ -105,8 +174,16 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         Log.e(TAG, "onDestroy");
+        if (mClientSocket != null) {
+            try {
+                mClientSocket.shutdownInput();
+                mClientSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        super.onDestroy();
     }
 
 }

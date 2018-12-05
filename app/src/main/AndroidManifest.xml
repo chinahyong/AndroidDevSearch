@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="and.elvis.androiddevsearch">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <application
         android:name=".chapter2.App"
         android:allowBackup="true"
@@ -56,7 +59,18 @@
             android:name=".BookManagerService"
             android:process=":remote" />
 
-        <activity android:name=".BookManagerActivity"></activity>
+        <activity android:name=".BookManagerActivity" />
+
+        <provider
+            android:name=".chapter2.BookProvider"
+            android:authorities="and.elvis.ipc.provider"
+            android:permission="and.elvis.PROVIDER"
+            android:process=":provider" />
+
+        <activity android:name=".chapter2.ProviderActivity" />
+        <service
+            android:name=".chapter2.TCPServerService"
+            android:process=":tcpserver" />
     </application>
 
 </manifest>
